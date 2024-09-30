@@ -1,87 +1,133 @@
 using System;
-using System.Collections.Generic;
 
-class Program
+// Definición de un nodo en el árbol binario de búsqueda (ABB)
+public class Nodo
 {
-    static void Main()
-    {
-        List<string> catalogo = new List<string>
-        {
-            "Revista de Tecnología",
-            "Revista de Ciencia",
-            "Revista de Historia",
-            "Revista de Salud",
-            "Revista de Deporte",
-            "Revista de Arte",
-            "Revista de Literatura",
-            "Revista de Viajes",
-            "Revista de Política",
-            "Revista de Economía"
-        };
+    public string Titulo;  // Título de la revista
+    public Nodo Izquierdo; // Hijo izquierdo
+    public Nodo Derecho;   // Hijo derecho
 
-        Console.WriteLine("Catálogo de Revistas:");
-        for (int i = 0; i < catalogo.Count; i++)
+    public Nodo(string titulo)
+    {
+        Titulo = titulo;
+        Izquierdo = null;
+        Derecho = null;
+    }
+}
+
+// Clase que define el catálogo de revistas usando un ABB
+public class CatalogoRevistas
+{
+    private Nodo raiz;
+
+    // Método para insertar un nuevo título en el catálogo
+    public void Insertar(string titulo)
+    {
+        raiz = InsertarRecursivo(raiz, titulo);
+    }
+
+    // Método recursivo para insertar un título en el lugar adecuado
+    private Nodo InsertarRecursivo(Nodo nodo, string titulo)
+    {
+        if (nodo == null)
         {
-            Console.WriteLine($"{i + 1}. {catalogo[i]}");
+            return new Nodo(titulo); // Crear un nuevo nodo si es nulo
         }
 
-        Console.WriteLine("\nMenú:");
-        Console.WriteLine("1. Buscar un título (búsqueda iterativa)");
-        Console.WriteLine("2. Buscar un título (búsqueda recursiva)");
-        Console.WriteLine("0. Salir");
-
-        while (true)
+        // Comparación alfabética para definir el lugar del nuevo nodo
+        if (string.Compare(titulo, nodo.Titulo) < 0)
         {
-            Console.Write("\nSelecciona una opción: ");
-            string opcion = Console.ReadLine();
+            nodo.Izquierdo = InsertarRecursivo(nodo.Izquierdo, titulo);
+        }
+        else if (string.Compare(titulo, nodo.Titulo) > 0)
+        {
+            nodo.Derecho = InsertarRecursivo(nodo.Derecho, titulo);
+        }
 
-            if (opcion == "0")
+        return nodo; // Retornar el nodo actualizado
+    }
+
+    // Método de búsqueda iterativa para encontrar un título
+    public bool Buscar(string titulo)
+    {
+        Nodo actual = raiz;
+
+        while (actual != null)
+        {
+            int comparacion = string.Compare(titulo, actual.Titulo);
+
+            if (comparacion == 0)
             {
-                break;
+                return true; // Título encontrado
             }
-
-            Console.Write("Ingresa el título a buscar: ");
-            string tituloBuscado = Console.ReadLine();
-
-            if (opcion == "1")
+            else if (comparacion < 0)
             {
-                bool encontrado = BuscarIterativo(catalogo, tituloBuscado);
-                Console.WriteLine(encontrado ? "Título encontrado." : "Título no encontrado.");
-            }
-            else if (opcion == "2")
-            {
-                bool encontrado = BuscarRecursivo(catalogo, tituloBuscado, 0);
-                Console.WriteLine(encontrado ? "Título encontrado." : "Título no encontrado.");
+                actual = actual.Izquierdo; // Moverse al subárbol izquierdo
             }
             else
             {
-                Console.WriteLine("Opción no válida.");
+                actual = actual.Derecho; // Moverse al subárbol derecho
             }
         }
-    }
 
-    static bool BuscarIterativo(List<string> catalogo, string tituloBuscado)
+        return false; // Título no encontrado
+    }
+}
+
+// Programa principal que maneja el menú y la interacción con el usuario
+public class Program
+{
+    static void Main(string[] args)
     {
-        foreach (var titulo in catalogo)
+        CatalogoRevistas catalogo = new CatalogoRevistas();
+
+        // Insertar 10 títulos en el catálogo
+        catalogo.Insertar("Revista Cientifica A");
+        catalogo.Insertar("Revista de Ciencias Naturales B");
+        catalogo.Insertar("Revista Tecnologica C");
+        catalogo.Insertar("Revista de Salud D");
+        catalogo.Insertar("Revista Agricola E");
+        catalogo.Insertar("Revista de Educacion F");
+        catalogo.Insertar("Revista de Quimica G");
+        catalogo.Insertar("Revista de Ingenieria H");
+        catalogo.Insertar("Revista de Biologia I");
+        catalogo.Insertar("Revista Ambiental J");
+
+        // Menú para buscar títulos
+        bool salir = false;
+
+        while (!salir)
         {
-            if (titulo.Equals(tituloBuscado, StringComparison.OrdinalIgnoreCase))
+            Console.WriteLine("\nCatálogo de Revistas");
+            Console.WriteLine("1. Buscar un título");
+            Console.WriteLine("2. Salir");
+            Console.Write("Seleccione una opción: ");
+            string opcion = Console.ReadLine();
+
+            switch (opcion)
             {
-                return true;
+                case "1":
+                    Console.Write("Ingrese el título a buscar: ");
+                    string tituloBuscado = Console.ReadLine();
+
+                    if (catalogo.Buscar(tituloBuscado))
+                    {
+                        Console.WriteLine("Título encontrado.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Título no encontrado.");
+                    }
+                    break;
+
+                case "2":
+                    salir = true;
+                    break;
+
+                default:
+                    Console.WriteLine("Opción no válida. Intente de nuevo.");
+                    break;
             }
         }
-        return false;
-    }
-
-    static bool BuscarRecursivo(List<string> catalogo, string tituloBuscado, int index)
-    {
-        if (index >= catalogo.Count)
-        {
-            return false;
-        }
-        if (catalogo[index].Equals(tituloBuscado, StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-        return BuscarRecursivo(catalogo, tituloBuscado, index + 1);
     }
 }
